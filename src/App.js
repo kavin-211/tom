@@ -1,58 +1,71 @@
-import React, { useState, useEffect } from 'react'
-import Loading from './Loading'
-import Tours from './Tours'
-// ATTENTION!!!!!!!!!!
-// I SWITCHED TO PERMANENT DOMAIN
-const url = 'https://course-api.com/react-tours-project'
+import React, { useEffect, useState } from "react";
 
-function App() {
-  const [loading, setLoading] = useState(true)
-  const [tours, setTours] = useState([])
+const VoiceCommandApp = () => {
+  const [command, setCommand] = useState("");
 
-  const removeTour = (id) => {
-    const newTours = tours.filter((tour) => tour.id !== id)
-    setTours(newTours)
-  }
+  // Define your functions
+  const one = () => alert("Function One Called");
+  const two = () => alert("Function Two Called");
+  const three = () => alert("Function Three Called");
+  const four = () => alert("Function Four Called");
 
-  const fetchTours = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(url)
-      const tours = await response.json()
-      setLoading(false)
-      setTours(tours)
-    } catch (error) {
-      setLoading(false)
-      console.log(error)
-    }
-  }
   useEffect(() => {
-    fetchTours()
-  }, [])
-  if (loading) {
-    return (
-      <main>
-        <Loading />
-      </main>
-    )
-  }
-  if (tours.length === 0) {
-    return (
-      <main>
-        <div className='title'>
-          <h2>no tours left</h2>
-          <button className='btn' onClick={() => fetchTours()}>
-            refresh
-          </button>
-        </div>
-      </main>
-    )
-  }
-  return (
-    <main>
-      <Tours tours={tours} removeTour={removeTour} />
-    </main>
-  )
-}
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Your browser does not support speech recognition.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
 
-export default App
+    recognition.onresult = (event) => {
+      const spokenWord = event.results[0][0].transcript.toLowerCase().trim();
+      setCommand(spokenWord);
+      handleCommand(spokenWord);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+    };
+
+    const startListening = () => {
+      recognition.start();
+    };
+
+    document.getElementById("start-btn").addEventListener("click", startListening);
+    return () => {
+      document.getElementById("start-btn").removeEventListener("click", startListening);
+    };
+  }, []);
+
+  const handleCommand = (spokenWord) => {
+    switch (spokenWord) {
+      case "one":
+        one();
+        break;
+      case "two":
+        two();
+        break;
+      case "three":
+        three();
+        break;
+      case "four":
+        four();
+        break;
+      default:
+        alert("Unknown command: " + spokenWord);
+    }
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>Voice Command App</h1>
+      <button id="start-btn">Start Listening</button>
+      <p>Recognized Command: {command}</p>
+    </div>
+  );
+};
+
+export default VoiceCommandApp;
