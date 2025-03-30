@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import annyang from "annyang";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import img1 from "./image1.png";
 import img2 from "./image2.png";
 import img3 from "./image3.png";
@@ -13,50 +13,32 @@ const images = {
 };
 
 const VoiceCommandApp = () => {
-  const [command, setCommand] = useState("");
   const [imageSrc, setImageSrc] = useState("");
-  const [listening, setListening] = useState(false);
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   useEffect(() => {
-    if (annyang) {
-      const commands = {
-        "one": () => handleCommand("one"),
-        "two": () => handleCommand("two"),
-        "three": () => handleCommand("three"),
-        "four": () => handleCommand("four"),
-      };
-
-      annyang.addCommands(commands);
-    } else {
-      alert("Your browser does not support speech recognition.");
+    if (transcript) {
+      const command = transcript.toLowerCase();
+      if (images[command]) {
+        setImageSrc(images[command]);
+      }
     }
-  }, []);
+  }, [transcript]);
 
-  const handleCommand = (input) => {
-    setCommand(input);
-    if (images[input]) {
-      setImageSrc(images[input]);
-    } else {
-      alert("Unknown command: " + input);
-    }
-  };
-
-  const toggleListening = () => {
-    if (listening) {
-      annyang.abort();
-    } else {
-      annyang.start();
-    }
-    setListening(!listening);
-  };
+  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    return <p>Your browser does not support speech recognition.</p>;
+  }
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Voice Command App</h1>
-      <button onClick={toggleListening} style={{ marginBottom: "20px" }}>
+      <button
+        onClick={listening ? SpeechRecognition.stopListening : SpeechRecognition.startListening}
+        style={{ marginBottom: "20px" }}
+      >
         {listening ? "Stop Listening" : "Start Listening"}
       </button>
-      <p>Recognized Command: {command}</p>
+      <p>Recognized Command: {transcript}</p>
       {imageSrc && (
         <img
           src={imageSrc}
@@ -65,18 +47,11 @@ const VoiceCommandApp = () => {
         />
       )}
       <div style={{ marginTop: "20px" }}>
-        <button onClick={() => handleCommand("one")} style={{ margin: "5px" }}>
-          One
-        </button>
-        <button onClick={() => handleCommand("two")} style={{ margin: "5px" }}>
-          Two
-        </button>
-        <button onClick={() => handleCommand("three")} style={{ margin: "5px" }}>
-          Three
-        </button>
-        <button onClick={() => handleCommand("four")} style={{ margin: "5px" }}>
-          Four
-        </button>
+        {Object.keys(images).map((key) => (
+          <button key={key} onClick={() => setImageSrc(images[key])} style={{ margin: "5px" }}>
+            {key.charAt(0).toUpperCase() + key.slice(1)}
+          </button>
+        ))}
       </div>
     </div>
   );
