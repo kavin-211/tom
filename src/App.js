@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import annyang from "annyang";
 import img1 from "./image1.png";
 import img2 from "./image2.png";
 import img3 from "./image3.png";
@@ -16,37 +17,23 @@ const VoiceCommandApp = () => {
   const [imageSrc, setImageSrc] = useState("");
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (annyang) {
+      const commands = {
+        "one": () => handleCommand("one"),
+        "two": () => handleCommand("two"),
+        "three": () => handleCommand("three"),
+        "four": () => handleCommand("four"),
+      };
+      
+      annyang.addCommands(commands);
+      annyang.start();
+    } else {
       alert("Your browser does not support speech recognition.");
-      return;
     }
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-
-    recognition.onresult = (event) => {
-      const spokenWord = event.results[0][0].transcript.toLowerCase().trim();
-      setCommand(spokenWord);
-      handleCommand(spokenWord);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-    };
-
-    const startListening = () => {
-      recognition.start();
-    };
-
-    document.getElementById("start-btn").addEventListener("click", startListening);
-    return () => {
-      document.getElementById("start-btn").removeEventListener("click", startListening);
-    };
   }, []);
 
   const handleCommand = (input) => {
+    setCommand(input);
     if (images[input]) {
       setImageSrc(images[input]);
     } else {
@@ -57,7 +44,6 @@ const VoiceCommandApp = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Voice Command App</h1>
-      <button id="start-btn">Start Listening</button>
       <p>Recognized Command: {command}</p>
       {imageSrc && <img src={imageSrc} alt="Recognized command" style={{ marginTop: "20px", width: "300px", height: "auto" }} />}
       <div style={{ marginTop: "20px" }}>
