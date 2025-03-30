@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
+import img1 from "./image1.png";
+import img2 from "./image2.png";
+import img3 from "./image3.png";
+import img4 from "./image4.png";
+
+const images = {
+  one: img1,
+  two: img2,
+  three: img3,
+  four: img4,
+};
 
 const VoiceCommandApp = () => {
   const [command, setCommand] = useState("");
-
-  // Define your functions
-  const one = () => alert("Function One Called");
-  const two = () => alert("Function Two Called");
-  const three = () => alert("Function Three Called");
-  const four = () => alert("Function Four Called");
+  const [imageSrc, setImageSrc] = useState("");
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -40,22 +46,11 @@ const VoiceCommandApp = () => {
     };
   }, []);
 
-  const handleCommand = (spokenWord) => {
-    switch (spokenWord) {
-      case "one":
-        one();
-        break;
-      case "two":
-        two();
-        break;
-      case "three":
-        three();
-        break;
-      case "four":
-        four();
-        break;
-      default:
-        alert("Unknown command: " + spokenWord);
+  const handleCommand = (input) => {
+    if (images[input]) {
+      setImageSrc(images[input]);
+    } else {
+      alert("Unknown command: " + input);
     }
   };
 
@@ -64,6 +59,13 @@ const VoiceCommandApp = () => {
       <h1>Voice Command App</h1>
       <button id="start-btn">Start Listening</button>
       <p>Recognized Command: {command}</p>
+      {imageSrc && <img src={imageSrc} alt="Recognized command" style={{ marginTop: "20px", width: "300px", height: "auto" }} />}
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => handleCommand("one")} style={{ margin: "5px" }}>One</button>
+        <button onClick={() => handleCommand("two")} style={{ margin: "5px" }}>Two</button>
+        <button onClick={() => handleCommand("three")} style={{ margin: "5px" }}>Three</button>
+        <button onClick={() => handleCommand("four")} style={{ margin: "5px" }}>Four</button>
+      </div>
     </div>
   );
 };
