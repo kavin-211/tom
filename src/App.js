@@ -15,6 +15,7 @@ const images = {
 const VoiceCommandApp = () => {
   const [command, setCommand] = useState("");
   const [imageSrc, setImageSrc] = useState("");
+  const [listening, setListening] = useState(false);
 
   useEffect(() => {
     if (annyang) {
@@ -24,9 +25,8 @@ const VoiceCommandApp = () => {
         "three": () => handleCommand("three"),
         "four": () => handleCommand("four"),
       };
-      
+
       annyang.addCommands(commands);
-      annyang.start();
     } else {
       alert("Your browser does not support speech recognition.");
     }
@@ -41,16 +41,42 @@ const VoiceCommandApp = () => {
     }
   };
 
+  const toggleListening = () => {
+    if (listening) {
+      annyang.abort();
+    } else {
+      annyang.start();
+    }
+    setListening(!listening);
+  };
+
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Voice Command App</h1>
+      <button onClick={toggleListening} style={{ marginBottom: "20px" }}>
+        {listening ? "Stop Listening" : "Start Listening"}
+      </button>
       <p>Recognized Command: {command}</p>
-      {imageSrc && <img src={imageSrc} alt="Recognized command" style={{ marginTop: "20px", width: "300px", height: "auto" }} />}
+      {imageSrc && (
+        <img
+          src={imageSrc}
+          alt="Recognized command"
+          style={{ marginTop: "20px", width: "300px", height: "auto" }}
+        />
+      )}
       <div style={{ marginTop: "20px" }}>
-        <button onClick={() => handleCommand("one")} style={{ margin: "5px" }}>One</button>
-        <button onClick={() => handleCommand("two")} style={{ margin: "5px" }}>Two</button>
-        <button onClick={() => handleCommand("three")} style={{ margin: "5px" }}>Three</button>
-        <button onClick={() => handleCommand("four")} style={{ margin: "5px" }}>Four</button>
+        <button onClick={() => handleCommand("one")} style={{ margin: "5px" }}>
+          One
+        </button>
+        <button onClick={() => handleCommand("two")} style={{ margin: "5px" }}>
+          Two
+        </button>
+        <button onClick={() => handleCommand("three")} style={{ margin: "5px" }}>
+          Three
+        </button>
+        <button onClick={() => handleCommand("four")} style={{ margin: "5px" }}>
+          Four
+        </button>
       </div>
     </div>
   );
